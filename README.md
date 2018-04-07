@@ -18,6 +18,10 @@ Demo video: [link](https://www.youtube.com/watch?v=8fZGE9BlwQw)
 
 > Kindly note that it really matters to apply compatible version of each library to speed up the installations. I tried several combinations and came out with the above library versions.
 
+### Hardware
+* CPU: *(TBD)*
+* GPU: *(TBD)*
+
 ### How to run the demo
 1. Download the FaceNet library from its [offical repository](https://github.com/davidsandberg/facenet) and put it under the root directory.
 2. Run *main.py* 
