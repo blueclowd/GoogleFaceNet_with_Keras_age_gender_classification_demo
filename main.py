@@ -16,15 +16,13 @@ import tensorflow as tf
 import time
 import numpy as np
 
-print(tf.__version__)
-
 # Facenet parameters
 gpu_memory_fraction = 1.0
 minsize = 50 # minimum size of face
 threshold = [ 0.6, 0.7, 0.7 ]  # three steps's threshold
 factor = 0.709 # scale factor
 
-# Keras age&gender classification parameters
+# Keras age & gender classification parameters
 face_size = 64
 age_gender_model = WideResNet(face_size, depth=16, k=8)()
 age_gender_model_dir = os.path.join(os.getcwd(), 'pretrained_models').replace('//','\\')
@@ -71,17 +69,21 @@ with tf.Graph().as_default():
 
             frame_no += 1
 
+            # Resize the frame for higher frame rate
             frame_resize = cv2.resize(frame, None, fx=resize_ratio, fy=resize_ratio)
 
             height, width = frame_resize.shape[:2]
 
             start_time = time.time()
+
+            # FaceNet return the bounding boxes and related landmarks
             bounding_boxes, points = facenet.src.align.detect_face.detect_face(
                 frame_resize, minsize, pnet,
                 rnet, onet, threshold, factor)
 
             end_time = time.time()
 
+            # Draw the landmarks if any
             if points.any():
 
                 for i in range(0, int(len(points)/2)):
@@ -96,24 +98,20 @@ with tf.Graph().as_default():
             index = 0
             for (x1, y1, x2, y2, acc) in bounding_boxes:
 
-                w = x2 - x1
-                h = y2 - y1
-
-                cv2.rectangle(frame, (int(x1/resize_ratio), int(y1/resize_ratio)), (int((x1 + w)/resize_ratio),
-                                                        int((y1 + h)/resize_ratio)), (150, 150, 150), 1)
-
                 y1_refined = int(y1/resize_ratio)
                 y2_refined = int(y2/resize_ratio)
                 x1_refined = int(x1/resize_ratio)
                 x2_refined = int(x2/resize_ratio)
 
+                cv2.rectangle(frame, (x1_refined, y1_refined), (x2_refined, y2_refined), (150, 150, 150), 1)
+
                 if x1_refined >= 0 and y1_refined >=0 and x2_refined < image_width and y2_refined < image_height:
 
-                    faces[index, :, :, :] = cv2.resize(frame[int(y1_refined):int(y2_refined)+1, int(x1_refined):int(x2_refined)+1, :], (face_size, face_size))
+                    faces[index, :, :, :] = cv2.resize(frame[y1_refined:y2_refined+1, x1_refined:x2_refined+1, :], (face_size, face_size))
 
                 index += 1
 
-            # Apply age&gender classification every 3 frames
+            # Apply age & gender classification every 3 frames
             if len(faces) is not 0 and frame_no % 3 == 0:
 
                 results = age_gender_model.predict(faces)
@@ -132,7 +130,7 @@ with tf.Graph().as_default():
                             org=(x1_refined,y1_refined), fontFace=cv2.FONT_HERSHEY_PLAIN, color=(255, 255, 255),
                         thickness=2, lineType=cv2.LINE_AA, fontScale=(y2-y1) * 0.02)
 
-                    if predicted_genders[i][0] > 0.6:
+                    if predicted_genders[i][0] > 0.5:
 
                         cv2.rectangle(frame, (x1_refined, y1_refined),
                                   (x2_refined,
