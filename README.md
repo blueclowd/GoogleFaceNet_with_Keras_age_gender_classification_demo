@@ -7,6 +7,8 @@ You can refer the following links for further details:
 * [Google FaceNet](https://github.com/davidsandberg/facenet)
 * [Age & Gender classification using Keras](https://github.com/yu4u/age-gender-estimation)
 
+Demo video: [link](https://www.youtube.com/watch?v=8fZGE9BlwQw)
+
 ### Environment
 * Ubuntu 16.04
 * Tensorflow 1.5.0
@@ -21,3 +23,10 @@ You can refer the following links for further details:
 2. Run *main.py* 
 
 > Some other issues are decribed in *main.py*
+
+### Issues
+| Issue        | Solution           | 
+| ------------- |:-------------:| 
+| Error message: ValueError: Tensor Tensor("dense_1/Softmax:0", shape=(?, 2), dtype=float32) is not an element of this graph.     | Add *age_gender_model._make_predict_function()* (please refer to line 38 in main.py) | 
+
+> Please feel free to share the issues you meet in the comment below so that we can establish a more comprehensive Q&A list. 
